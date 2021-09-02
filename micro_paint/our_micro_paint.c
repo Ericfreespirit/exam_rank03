@@ -41,8 +41,6 @@ int get_info(FILE *file, drawing *drawing)
 
 	if (fscanf(file, "%d %d %c\n", &drawing->width, &drawing->height, &background) == 3)
 	{
-		printf(">%c\n", background);
-		getchar();
 		if ((((drawing->width < 1) || (300 < drawing->width)) || (drawing->height < 1)) || (300 < drawing->height))
 			return (1);
 		tmp = (char *)malloc(drawing->width * drawing->height);
