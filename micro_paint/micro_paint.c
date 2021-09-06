@@ -36,6 +36,26 @@ int str_error(char *str, int ret)
 	return (ret);
 }
 
+void draw(char *arr, t_board *board)
+{
+	int	i;
+	int	j;
+
+	i = 0;
+	j = 0;
+	while(j < board->height)
+	{
+		i = 0;
+		while (i < board->width)
+		{
+			write(1, &arr[j * board->width + i], 1);
+			i++;
+		}
+		write(1, "\n", 1);
+		j++;
+	}
+}
+
 int	ft_board(t_board *board, FILE *file, char **arr)
 {
 	int	len;
@@ -59,10 +79,9 @@ int	ft_board(t_board *board, FILE *file, char **arr)
 
 int is_in_rect(float i, float j, t_rectangle *rect, t_board *board)
 {
- if ((i >= rect->x && i <= rect->x + rect->width  && (j == rect->y || j == rect->y + rect->height))
- 	|| (j >= rect->y && j <= rect->y + rect->height && (i == rect->x || i == rect->x + rect->width)))
-		return (1);
-	return (0);
+	if (i < rect->x || i > rect->x + rect->width || j < rect->y || j > rect->y + rect->height)
+		return (0);
+	return (1);
 }
 // Est ce que les rectangle se chevauchent ou écrasent ?
 int ft_rect(t_rectangle *rect, char *arr, t_board *board)
@@ -71,42 +90,20 @@ int ft_rect(t_rectangle *rect, char *arr, t_board *board)
 	int	j;
 
 	i = 0;
-	if (rect->width > 0.0 && rect->height > 0.0 && (rect->id == 'r' || rect->id == 'R'))
+	if (rect->width <= 0.0 || rect->height <= 0.0 || (rect->id != 'r' && rect->id != 'R'))
+		return (1);
+	while(i < board->width)
 	{
-		while(i < board->width)
-		{
-			j = 0;
-			while (j < board->height)
-			{
-				if (is_in_rect(i, j, rect, board) == 1)
-					arr[j * board->width + i] = rect->color;
-				j++;
-			}
-			i++;
-		}	
-	}
-	return (1);
-}
-
-void draw(char *arr, t_board *board)
-{
-	int	i;
-	int	j;
-
-	i = 0;
-	j = 0;
-	while (arr[i])
-	{
-		while (j < board->width)
-		{
-			write(1, &arr[j], 1);
-			j++;
-			i++;
-		}
-		write(1, "\n", 1);
 		j = 0;
+		while (j < board->height)
+		{
+			if (is_in_rect(i, j, rect, board) > 0)
+				arr[j * board->width + i] = rect->color;
+			j++;
+		}
 		i++;
 	}
+	return (0);
 }
 
 int launch(t_board *board, t_rectangle *rect, FILE *file)
@@ -143,6 +140,5 @@ int main(int ac, char **av)
 		return (str_error("Error: Operation file corrupted\n", 1));
 	if ((launch(&board, &rect, file)) == 1)
 		return (str_error("Error: Operation file corrupted\n", 1));
-
 	return (0);
-};
+}
