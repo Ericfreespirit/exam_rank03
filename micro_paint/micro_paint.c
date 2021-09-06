@@ -79,15 +79,22 @@ int	ft_board(t_board *board, FILE *file, char **arr)
 
 int is_in_rect(float i, float j, t_rectangle *rect, t_board *board)
 {
+
 	if (i < rect->x || i > rect->x + rect->width || j < rect->y || j > rect->y + rect->height)
 		return (0);
-	return (1);
+	//Border
+	if ((i - rect->x <  1.00000000 || (rect->width + rect->x) - i <  1.00000000
+			|| j - rect->y <  1.00000000 || (rect->height + rect->y) - j <  1.00000000))
+		return (1);
+	//Inside
+	return (2);
 }
-// Est ce que les rectangle se chevauchent ou écrasent ?
+
 int ft_rect(t_rectangle *rect, char *arr, t_board *board)
 {
 	int	i;
 	int	j;
+	int ret;
 
 	i = 0;
 	if (rect->width <= 0.0 || rect->height <= 0.0 || (rect->id != 'r' && rect->id != 'R'))
@@ -97,7 +104,8 @@ int ft_rect(t_rectangle *rect, char *arr, t_board *board)
 		j = 0;
 		while (j < board->height)
 		{
-			if (is_in_rect(i, j, rect, board) > 0)
+			ret = is_in_rect((float)i, (float)j, rect, board);
+			if ((ret == 2 && rect->id == 'R') || ret == 1)
 				arr[j * board->width + i] = rect->color;
 			j++;
 		}
