@@ -59,18 +59,12 @@ int	ft_board(t_board *board, FILE *file, char **arr)
 
 int is_in_rect(float i, float j, t_rectangle *rect, t_board *board)
 {
-	if()
+ if ((i >= rect->x && i <= rect->x + rect->width  && (j == rect->y || j == rect->y + rect->height))
+ 	|| (j >= rect->y && j <= rect->y + rect->height && (i == rect->x || i == rect->x + rect->width)))
+		return (1);
+	return (0);
 }
-
-void ft_put_pixel(float	i, int j, char *arr, t_rectangle *rect, t_board *board)
-{
-	int ret;
-
-	ret = is_in_rect(i, j, rect, board);
-	if (ret > 0)
-		arr[(int)i] = rect->color;
-}
-
+// Est ce que les rectangle se chevauchent ou écrasent ?
 int ft_rect(t_rectangle *rect, char *arr, t_board *board)
 {
 	int	i;
@@ -79,16 +73,17 @@ int ft_rect(t_rectangle *rect, char *arr, t_board *board)
 	i = 0;
 	if (rect->width > 0.0 && rect->height > 0.0 && (rect->id == 'r' || rect->id == 'R'))
 	{
-		while(arr[i])
+		while(i < board->width)
 		{
 			j = 0;
-			while(j < board->height)
+			while (j < board->height)
 			{
-				ft_put_pixel((float)i, (float)j, arr, rect, board);
+				if (is_in_rect(i, j, rect, board) == 1)
+					arr[j * board->width + i] = rect->color;
 				j++;
 			}
 			i++;
-		}
+		}	
 	}
 	return (1);
 }
@@ -112,8 +107,6 @@ void draw(char *arr, t_board *board)
 		j = 0;
 		i++;
 	}
-
-
 }
 
 int launch(t_board *board, t_rectangle *rect, FILE *file)
@@ -126,7 +119,7 @@ int launch(t_board *board, t_rectangle *rect, FILE *file)
 	ret = fscanf(file, "%c %f %f %f %f %c\n", &rect->id, &rect->x, &rect->y, &rect->width, &rect->height, &rect->color);
 	while (ret == 6)
 	{
-		if (ft_rect(rect, arr))
+		if (ft_rect(rect, arr, board))
 			return (1);
 		ret = fscanf(file, "%c %f %f %f %f %c\n", &rect->id, &rect->x, &rect->y, &rect->width, &rect->height, &rect->color);
 	}
